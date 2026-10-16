@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="login_title">Login - Agriculture App</title>
+    <!-- Use Flipkart's preferred font style Roboto or keep Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="{{ url_for('static', filename='js/translations.js') }}"></script>
+    <style>
+        .fk-page {
+            background-color: #f1f3f6;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .fk-container {
+            display: flex;
+            width: 850px;
+            height: 528px;
+            background: #fff;
+            border-radius: 2px;
+            box-shadow: 0 4px 16px 0 rgba(0, 0, 0, .1);
+            overflow: hidden;
+            margin: auto;
+        }
+
+        .fk-left {
+            width: 40%;
+            background: #10B981;
+            /* Theme Green */
+            padding: 40px 33px;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .fk-left h2 {
+            font-size: 28px;
+            font-weight: 500;
+            margin-bottom: 15px;
+            letter-spacing: 0.5px;
+        }
+
+        .fk-left p {
+            font-size: 18px;
+            line-height: 1.5;
+            color: #dbecff;
+        }
+
+        .fk-left-img-container {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            text-align: center;
+        }
+
+        .fk-right {
+            width: 60%;
+            padding: 50px 35px 20px 35px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .fk-input-group {
+            position: relative;
+            margin-bottom: 30px;
+            margin-top: 10px;
+        }
+
+        .fk-input {
+            width: 100%;
+            border: none;
+            border-bottom: 1px solid #e0e0e0;
+            padding: 10px 0;
+            font-size: 15px;
+            outline: none;
+            transition: border-bottom-color 0.3s;
+            color: #212121;
+            background: transparent;
+        }
+
+        .fk-input:focus {
+            border-bottom: 1px solid #10B981;
+        }
+
+        .fk-label {
+            position: absolute;
+            left: 0;
+            top: 10px;
+            color: #878787;
+            transition: 0.2s ease all;
+            pointer-events: none;
+            font-size: 15px;
+        }
+
+        /* Floating label effect */
+        .fk-input:focus~.fk-label,
+        .fk-input:not(:placeholder-shown)~.fk-label {
+            top: -16px;
+            font-size: 12px;
+            color: #10B981;
+        }
+
+        .fk-input:not(:focus):not(:placeholder-shown)~.fk-label {
+            color: #878787;
+        }
+
+        .fk-terms {
+            font-size: 12px;
+            color: #878787;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .fk-terms a {
+            color: #10B981;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .fk-btn-primary {
+            background: #059669;
+            /* Theme Dark Green */
+            color: #fff;
+            border: none;
+            padding: 15px;
+            width: 100%;
+            font-size: 15px;
+            font-weight: 500;
+            border-radius: 2px;
+            cursor: pointer;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, .2);
+            text-transform: uppercase;
+        }
+
+        .fk-btn-primary:active {
+            box-shadow: none;
+            background: #047857;
+        }
+
+        .fk-bottom-link {
+            text-align: center;
+            margin-top: auto;
+            font-weight: 500;
+            color: #10B981;
+            text-decoration: none;
+            font-size: 14px;
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+        }
+
+        .fk-bottom-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body class="fk-page">
+    <div class="fk-container">
+        <!-- Left Banner -->
+        <div class="fk-left">
+            <h2 data-i18n="login_title">Login</h2>
+            <p data-i18n="login_subtitle">Get access to your Orders, Wishlist and Recommendations</p>
+            <div class="fk-left-img-container">
+                <img src="{{ url_for('static', filename='images/login_illustration.png') }}" alt="Login Illustration" style="max-width: 100%; height: auto; border-radius: 8px;">
+            </div>
+        </div>
+
+        <!-- Right Form Area -->
+        <div class="fk-right">
+            <form id="login-form" style="margin-top: 20px; height: 100%;">
+                <div id="step-1" style="height: 100%; display: flex; flex-direction: column;">
+                    <div class="fk-input-group">
+                        <!-- Use required so that :valid pseudo class can trigger the floating label -->
+                        <input type="tel" class="fk-input" id="identifier" name="identifier" inputmode="numeric"
+                            maxlength="10" pattern="[0-9]{10}" oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                            placeholder=" " required>
+                        <label class="fk-label" for="identifier" data-i18n="mobile_number">Enter Mobile Number</label>
+                    </div>
+
+                    <p class="fk-terms">
+                        By continuing, you agree to Agriculture App's <a href="#">Terms of Use</a> and <a
+                            href="#">Privacy Policy</a>.
+                    </p>
+
+                    <button type="button" class="fk-btn-primary" id="request-otp-btn" data-i18n="request_otp">Request
+                        OTP</button>
+
+                    <a href="/register" class="fk-bottom-link">New to Agriculture App? Create an account</a>
+                </div>
+
+                <div id="step-2" style="display: none; height: 100%; flex-direction: column;">
+                    <p style="text-align: center; margin-bottom: 25px; color: #878787; font-size: 14px;">
+                        OTP sent to <strong id="sent-to" style="color:#212121;"></strong>
+                    </p>
+
+                    <div class="fk-input-group">
+                        <input type="text" class="fk-input" id="otp" name="otp" maxlength="6" required>
+                        <label class="fk-label" for="otp" data-i18n="enter_otp">Enter 6-digit OTP</label>
+                    </div>
+
+                    <button type="submit" class="fk-btn-primary" id="verify-login-btn" data-i18n="login_btn"
+                        style="margin-bottom: 20px;">Verify & Login</button>
+
+                    <div style="text-align: center;">
+                        <a href="#" id="back-btn"
+                            style="color: #10B981; text-decoration: none; font-size: 14px; font-weight: 500;"
+                            data-i18n="back_btn">Go Back</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+    <script>
+        function changeAuthLanguage(lang) {
+            localStorage.setItem('selectedLanguage', lang);
+            window.location.reload();
+        }
+    </script>
+</body>
+
+</html>

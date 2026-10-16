@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="register_title">Register - Agriculture App</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="{{ url_for('static', filename='js/translations.js') }}"></script>
+</head>
+
+<body class="auth-page">
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <div class="logo">
+                    <i class="fa-solid fa-seedling"></i>
+                    <h1 data-i18n="app_name">Agriculture App</h1>
+                </div>
+                <p class="subtitle" data-i18n="register_subtitle">Create your account</p>
+                <div class="auth-lang-selector"
+                    style="margin-top: 10px; display: flex; gap: 10px; justify-content: center; font-size: 0.9em;">
+                    <a href="#" onclick="changeAuthLanguage('en'); return false;"
+                        style="color: var(--primary-color);">English</a> |
+                    <a href="#" onclick="changeAuthLanguage('hi'); return false;"
+                        style="color: var(--primary-color);">हिंदी</a> |
+                    <a href="#" onclick="changeAuthLanguage('te'); return false;"
+                        style="color: var(--primary-color);">తెలుగు</a>
+                </div>
+            </div>
+
+            <form id="register-form" class="login-form">
+
+                <div class="form-group">
+                    <label for="phone" data-i18n="mobile_number">Mobile Number</label>
+                    <div class="input-icon">
+                        <i class="fa-solid fa-phone"></i>
+                        <input type="tel" id="phone" name="phone" placeholder="Enter Mobile Number" pattern="[0-9]{10}"
+                            required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password" data-i18n="password">Password</label>
+                    <div class="input-icon">
+                        <i class="fa-solid fa-eye toggle-password"
+                            onclick="togglePasswordVisibility(event, 'password')"></i>
+                        <input type="password" id="password" name="password"
+                            placeholder="Create a password (min 6 characters)" required>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 10px;">
+                    <label for="confirm-password" data-i18n="confirm_password">Confirm Password</label>
+                    <div class="input-icon">
+                        <i class="fa-solid fa-eye toggle-password"
+                            onclick="togglePasswordVisibility(event, 'confirm-password')"></i>
+                        <input type="password" id="confirm-password" name="confirm_password"
+                            placeholder="Confirm your password" required>
+                    </div>
+                </div>
+
+                <button type="submit" id="submit-registration-btn" class="btn-primary btn-full"
+                    data-i18n="complete_reg">Complete Registration</button>
+
+            </form>
+
+            <div class="form-footer">
+                <p><span data-i18n="have_account_link_pre">Already have an account?</span> <a href="/login" class="link"
+                        data-i18n="login_title">Login</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+    <script>
+        function changeAuthLanguage(lang) {
+            localStorage.setItem('selectedLanguage', lang);
+            window.location.reload();
+        }
+    </script>
+</body>
+
+</html>

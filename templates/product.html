@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Details - Agriculture App</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <meta name="theme-color" content="#10B981">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="AgriApp">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='images/app_icon.png') }}">
+</head>
+
+<body>
+    <div class="overlay" id="overlay" onclick="closeAllMenus()"></div>
+
+    <header>
+        <div class="header-left">
+            <div class="menu-toggle-btn btn-hover" onclick="toggleLeftSidebar()">
+                <i class="fa-solid fa-bars"></i>
+            </div>
+            <div class="logo">
+                <i class="fa-solid fa-seedling"></i>
+                <span>Agriculture App</span>
+            </div>
+        </div>
+
+        <div class="search-bar">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" placeholder="Search products..." id="search-input" onkeyup="searchProducts()">
+        </div>
+
+        <div class="header-actions">
+            <div class="calc-btn-header btn-hover circular-btn" onclick="toggleCalculator()"
+                style="margin-right: 15px;">
+                <i class="fa-solid fa-calculator" style="font-size: 1.2rem;"></i>
+            </div>
+            <div class="language-btn btn-hover circular-btn" onclick="openLanguageModal()"
+                style="margin-right: 15px; width: auto; height: auto; padding: 8px 12px; border-radius: 24px; gap: 8px;">
+                <i class="fa-solid fa-globe" style="font-size: 1.2rem;"></i>
+                <span id="current-lang-text" style="font-weight: 500; font-size: 0.95rem;">English</span>
+                <i class="fa-solid fa-chevron-down" style="font-size: 0.8rem;"></i>
+            </div>
+
+            <div class="cart-btn btn-hover" onclick="window.location.href='/cart'">
+                <i class="fa-solid fa-bag-shopping"></i>
+                <span data-i18n="cart_text">Cart</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="app-container">
+        <aside class="sidebar-left" id="leftSidebar">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 style="color:var(--primary-dark)">Menu</h3>
+                <i class="fa-solid fa-xmark close-btn" onclick="toggleLeftSidebar()"></i>
+            </div>
+            <a href="/" class="menu-link active-link"><i class="fa-solid fa-house"></i> Home</a>
+            <a href="/" class="menu-link"><i class="fa-solid fa-chart-simple"></i> Analysis</a>
+            <a href="/" class="menu-link"><i class="fa-solid fa-shop"></i> Market Price</a>
+            <a href="/" class="menu-link"><i class="fa-solid fa-user"></i> Profile</a>
+
+            <div class="profile-section btn-hover" onclick="window.location.href='/'">
+                <img src="https://ui-avatars.com/api/?name=User&background=10B981&color=fff" alt="User"
+                    class="profile-img">
+                <div class="profile-info">
+                    <span class="profile-name">User</span>
+                    <span class="profile-role">Member</span>
+                </div>
+                <i class="fa-solid fa-right-from-bracket logout-icon" onclick="logoutUser(event)"></i>
+            </div>
+        </aside>
+        <main class="main-content">
+            <!-- Product Detail Section -->
+            <div id="product-detail" class="pt-20">
+                <div class="product-detail-container" id="product-container">
+                    <!-- Product details will be loaded here -->
+                </div>
+
+                <!-- Other Products Section -->
+                <div class="section-header mt-40">
+                    <h2 class="section-title" data-i18n="other_products">Other Products in This Category</h2>
+                </div>
+                <div class="dashboard-grid" id="other-products">
+                    <!-- Other products will be loaded here -->
+                </div>
+
+                <!-- Recently Viewed Section -->
+                <div class="section-header mt-40">
+                    <h2 class="section-title" data-i18n="recently_viewed">Recently Viewed Products</h2>
+                </div>
+                <div class="dashboard-grid" id="recently-viewed">
+                    <!-- Recently viewed products will be loaded here -->
+                </div>
+            </div>
+        </main>
+
+        <aside class="sidebar-right" id="rightSidebar">
+            <div class="filter-header">
+                <h3>Filters & Options</h3>
+                <i class="fa-solid fa-xmark close-btn" onclick="toggleRightSidebar()"></i>
+            </div>
+
+            <div class="filter-section">
+                <h4>Price Range</h4>
+                <div class="filter-option">
+                    <span>Min Price</span>
+                    <input type="number" id="min-price" placeholder="0" class="filter-input">
+                </div>
+                <div class="filter-option">
+                    <span>Max Price</span>
+                    <input type="number" id="max-price" placeholder="1000" class="filter-input">
+                </div>
+            </div>
+
+            <div class="filter-section">
+                <h4>Rating</h4>
+                <div class="filter-checkbox">
+                    <input type="checkbox" id="rating-5" value="5">
+                    <label for="rating-5">★★★★★ 5 Stars</label>
+                </div>
+                <div class="filter-checkbox">
+                    <input type="checkbox" id="rating-4" value="4">
+                    <label for="rating-4">★★★★ 4 Stars & Up</label>
+                </div>
+                <div class="filter-checkbox">
+                    <input type="checkbox" id="rating-3" value="3">
+                    <label for="rating-3">★★★ 3 Stars & Up</label>
+                </div>
+                <div class="filter-checkbox">
+                    <input type="checkbox" id="rating-2" value="2">
+                    <label for="rating-2">★★ 2 Stars & Up</label>
+                </div>
+            </div>
+
+            <div class="filter-option">
+                <span>Dark Mode</span>
+                <input type="checkbox" class="toggle-switch">
+            </div>
+        </aside>
+    </div>
+
+    <!-- CALCULATOR MODAL -->
+    <div id="calculator-modal" class="calculator-widget" style="display: none;">
+        <div class="calculator-header">
+            <h3><i class="fa-solid fa-calculator"></i> <span data-i18n="calculator_title">Calculator</span></h3>
+            <div class="calc-window-controls">
+                <i class="fa-solid fa-xmark minimize-calc" onclick="toggleCalculator()"></i>
+            </div>
+        </div>
+        <div class="calculator-body">
+            <div class="calc-screen">
+                <input type="text" id="calc-display" readonly value="0">
+            </div>
+            <div class="calc-keypad">
+                <button class="calc-btn clear-btn" onclick="calcClear()">AC</button>
+                <button class="calc-btn operator-btn" onclick="calcBackspace()">⌫</button>
+                <button class="calc-btn operator-btn" onclick="calcAppend('%')">%</button>
+                <button class="calc-btn operator-btn" onclick="calcAppend('/')">÷</button>
+
+                <button class="calc-btn" onclick="calcAppend('7')">7</button>
+                <button class="calc-btn" onclick="calcAppend('8')">8</button>
+                <button class="calc-btn" onclick="calcAppend('9')">9</button>
+                <button class="calc-btn operator-btn" onclick="calcAppend('*')">×</button>
+
+                <button class="calc-btn" onclick="calcAppend('4')">4</button>
+                <button class="calc-btn" onclick="calcAppend('5')">5</button>
+                <button class="calc-btn" onclick="calcAppend('6')">6</button>
+                <button class="calc-btn operator-btn" onclick="calcAppend('-')">-</button>
+
+                <button class="calc-btn" onclick="calcAppend('1')">1</button>
+                <button class="calc-btn" onclick="calcAppend('2')">2</button>
+                <button class="calc-btn" onclick="calcAppend('3')">3</button>
+                <button class="calc-btn operator-btn" onclick="calcAppend('+')">+</button>
+
+                <button class="calc-btn zero-btn" onclick="calcAppend('0')">0</button>
+                <button class="calc-btn" onclick="calcAppend('.')">.</button>
+                <button class="calc-btn equal-btn" onclick="calcResult()">=</button>
+            </div>
+        </div>
+    </div>
+    <!-- Language Selection Modal -->
+    <div id="language-modal" class="overlay" style="z-index: 200; display: none;">
+        <div class="modal-content container-padded" style="max-width: 450px; margin: 100px auto; text-align: center;">
+            <div style="margin-bottom: 25px;">
+                <i class="fa-solid fa-language" style="font-size: 3rem; color: var(--primary);"></i>
+            </div>
+            <h2 style="margin-bottom: 10px;" data-i18n="choose_language">Choose Language</h2>
+            <p style="margin-bottom: 30px; opacity: 0.8;" data-i18n="select_pref_lang">Select your preferred
+                language
+            </p>
+
+            <div class="language-options" style="display: flex; flex-direction: column; gap: 15px;">
+                <button class="btn-hover btn-secondary" onclick="selectLanguage('en')"
+                    style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+                    <img src="https://flagcdn.com/w40/gb.png" alt="English" style="width: 25px; border-radius: 4px;">
+                    <span>English</span>
+                </button>
+                <button class="btn-hover btn-secondary" onclick="selectLanguage('hi')"
+                    style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+                    <img src="https://flagcdn.com/w40/in.png" alt="Hindi" style="width: 25px; border-radius: 4px;">
+                    <span>हिंदी (Hindi)</span>
+                </button>
+                <button class="btn-hover btn-secondary" onclick="selectLanguage('te')"
+                    style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+                    <img src="https://flagcdn.com/w40/in.png" alt="Telugu" style="width: 25px; border-radius: 4px;">
+                    <span>తెలుగు (Telugu)</span>
+                </button>
+            </div>
+            <div style="margin-top: 30px;">
+                <button onclick="document.getElementById('language-modal').style.display='none'"
+                    class="btn-hover btn-secondary" style="width: 100%; border-radius: 8px; padding: 12px;"
+                    data-i18n="btn_cancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <nav class="bottom-nav">
+        <div class="nav-item" onclick="window.location.href='/'">
+            <i class="fa-solid fa-house"></i>
+            <span data-i18n="nav_home">Home</span>
+        </div>
+
+        <div class="nav-item" onclick="window.location.href='/'">
+            <i class="fa-solid fa-magnifying-glass-chart"></i>
+            <span data-i18n="nav_analysis">Analysis</span>
+        </div>
+
+        <div class="nav-item" onclick="window.location.href='/'">
+            <i class="fa-solid fa-indian-rupee-sign"></i>
+            <span data-i18n="nav_market">Market Price</span>
+        </div>
+
+        <div class="nav-item" onclick="window.location.href='/'">
+            <i class="fa-solid fa-user"></i>
+            <span data-i18n="nav_profile">Profile</span>
+        </div>
+    </nav>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script src="{{ url_for('static', filename='js/translations.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+        // Get product ID from URL
+        const productId = Number('{{ product_id }}');
+
+        document.addEventListener('DOMContentLoaded', async function () {
+            checkSession();
+            const product = await loadProductDetail();
+            if (product && product.category_id) {
+                loadOtherProducts(product.category_id);
+            } else {
+                loadOtherProducts();
+            }
+            loadRecentlyViewed();
+        });
+
+        async function loadProductDetail() {
+            try {
+                const response = await fetch(`/api/products/${productId}`);
+                const product = await response.json();
+
+                if (product.success === false) {
+                    document.getElementById('product-container').innerHTML = '<p>Product not found</p>';
+                    return;
+                }
+
+                // Mark as viewed
+                await fetch('/api/products/viewed', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ product_id: productId })
+                });
+
+                const images = product.images && product.images.length > 0 ? product.images : [product.image_url];
+                const ratingStars = createStarRating(product.average_rating || 0);
+
+                let thumbnailHTML = '';
+                images.forEach((img, index) => {
+                    thumbnailHTML += `<img src="${img}" alt="Product ${index + 1}" class="thumbnail ${index === 0 ? 'active' : ''}" onclick="changeMainImage(this)">`;
+                });
+
+                let reviewsHTML = '';
+                if (product.reviews && product.reviews.length > 0) {
+                    product.reviews.forEach(review => {
+                        const reviewStars = createStarRating(review.rating);
+                        reviewsHTML += `
+                            <div style="padding: 15px; border-bottom: 1px solid #f3f4f6;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                    <strong>${review.username}</strong>
+                                    <div class="stars">${reviewStars}</div>
+                                </div>
+                                <p style="color: #666; font-size: 0.9rem;">${review.review || 'No review text'}</p>
+                            </div>
+                        `;
+                    });
+                }
+
+                const html = `
+                    <div class="product-gallery">
+                        <img src="${images[0]}" alt="${product.name}" class="main-image" id="main-image">
+                        <div class="thumbnail-gallery">
+                            ${thumbnailHTML}
+                        </div>
+                    </div>
+
+                    <div class="product-details">
+                        <h1 class="product-title">${t(product.name)}</h1>
+                        
+                        <div class="product-meta">
+                            <div class="product-rating-detail">
+                                <div class="stars">${ratingStars}</div>
+                                <span style="color: #666; font-size: 0.9rem;">${product.rating_count || 0} ${t('reviews_count')}</span>
+                            </div>
+                            <div class="product-price-detail">₹${product.price.toFixed(2)}</div>
+                        </div>
+
+                        <p class="product-description-detail">${product.description || t('description')}</p>
+
+                        <div class="product-stock">
+                            <i class="fa-solid fa-check-circle"></i>
+                            <span>${product.stock_quantity > 0 ? `${product.stock_quantity} ${t('in_stock')}` : t('out_of_stock')}</span>
+                        </div>
+
+                        <div class="quantity-selector">
+                            <button class="quantity-btn" onclick="decreaseQuantity()">-</button>
+                            <input type="number" id="quantity" class="quantity-input" value="1" min="1" max="${product.stock_quantity}">
+                            <button class="quantity-btn" onclick="increaseQuantity(${product.stock_quantity})">+</button>
+                        </div>
+
+                        <button class="add-to-cart-btn" onclick="addToCartDetail(${productId})">
+                            <i class="fa-solid fa-bag-shopping"></i> ${t('msg_added_to_cart') ? t('add_product') : 'Add to Cart'}
+                        </button>
+
+                        <div style="margin-top: 30px; padding-top: 30px; border-top: 1px solid #f3f4f6;">
+                            <h3 style="margin-bottom: 15px;" data-i18n="customer_reviews">${t('customer_reviews')}</h3>
+                            ${reviewsHTML || '<p style="color: #666;">' + t('no_reviews') + '</p>'}
+                            <button class="btn-primary" style="margin-top: 15px;" onclick="showRatingForm()">${t('write_review')}</button>
+                        </div>
+
+                        <div id="rating-form" style="display: none; margin-top: 20px; padding: 20px; background: #f9fafb; border-radius: var(--radius-md);">
+                            <h4 style="margin-bottom: 15px;">${t('rate_product')}</h4>
+                            <div class="star-rating" id="star-rating" style="margin-bottom: 15px;">
+                                <span class="star" onclick="setRating(1)">★</span>
+                                <span class="star" onclick="setRating(2)">★</span>
+                                <span class="star" onclick="setRating(3)">★</span>
+                                <span class="star" onclick="setRating(4)">★</span>
+                                <span class="star" onclick="setRating(5)">★</span>
+                            </div>
+                            <textarea id="review-text" placeholder="${t('description')}..." style="width: 100%; padding: 10px; border: 1px solid #e5e7eb; border-radius: 8px; margin-bottom: 10px;" rows="3"></textarea>
+                            <button class="btn-primary" onclick="submitRating(${productId})">${t('submit_review')}</button>
+                        </div>
+                    </div>
+                `;
+
+                document.getElementById('product-container').innerHTML = html;
+                return product;
+            } catch (error) {
+                console.error('Failed to load product:', error);
+                document.getElementById('product-container').innerHTML = '<p>Error loading product</p>';
+                return null;
+            }
+        }
+
+        async function loadOtherProducts(categoryId = null) {
+            try {
+                let url = '/api/products';
+                if (categoryId) {
+                    // Use category endpoint if available
+                    url = `/api/products/category/${categoryId}`;
+                }
+
+                const response = await fetch(url);
+                const data = await response.json();
+
+                // Handle response structure (array or object with products key)
+                // The category endpoint might return { products: [...] } or just [...]
+                // We need to be robust
+                let products = [];
+                if (Array.isArray(data)) {
+                    products = data;
+                } else if (data.products) {
+                    products = data.products;
+                }
+
+                // Filter out current product and slice
+                const otherProducts = products
+                    .filter(p => p.product_id !== productId)
+                    // If we used category endpoint, strict filtering might not be needed, but good to keep if we fallback to all products
+                    .slice(0, 6);
+
+                const container = document.getElementById('other-products');
+                container.innerHTML = '';
+
+                if (otherProducts.length === 0) {
+                    container.innerHTML = '<p style="text-align: center; color: #666;">No other products available</p>';
+                    return;
+                }
+
+                otherProducts.forEach(product => {
+                    container.innerHTML += createProductCard(product);
+                });
+            } catch (error) {
+                console.error('Failed to load other products:', error);
+            }
+        }
+
+        async function loadRecentlyViewed() {
+            try {
+                const response = await fetch('/api/products/viewed');
+                const products = await response.json();
+
+                const container = document.getElementById('recently-viewed');
+                container.innerHTML = '';
+
+                if (products.length === 0) {
+                    container.innerHTML = '<p style="text-align: center; color: #666;">No recently viewed products</p>';
+                    return;
+                }
+
+                products
+                    .filter(p => {
+                        const cat = (p.category_name || '').toLowerCase();
+                        return cat.includes('fruit') || cat.includes('vegetable');
+                    })
+                    .forEach(product => {
+                        container.innerHTML += createProductCard(product);
+                    });
+            } catch (error) {
+                console.error('Failed to load recently viewed products:', error);
+            }
+        }
+
+        function changeMainImage(img) {
+            document.getElementById('main-image').src = img.src;
+            document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
+            img.classList.add('active');
+        }
+
+        function increaseQuantity(max) {
+            const input = document.getElementById('quantity');
+            let currentVal = parseInt(input.value) || 0;
+            let maxVal = parseInt(max);
+
+            // If max is not provided or invalid, allow increase up to a reasonable limit (e.g. 100)
+            if (isNaN(maxVal)) maxVal = 100;
+
+            if (currentVal < maxVal) {
+                input.value = currentVal + 1;
+            }
+        }
+
+        function decreaseQuantity() {
+            const input = document.getElementById('quantity');
+            let currentVal = parseInt(input.value) || 0;
+            if (currentVal > 1) {
+                input.value = currentVal - 1;
+            }
+        }
+
+        async function addToCartDetail(productId) {
+            const quantity = parseInt(document.getElementById('quantity').value);
+            await addToCart(productId, quantity);
+        }
+
+        function showRatingForm() {
+            const form = document.getElementById('rating-form');
+            form.style.display = form.style.display === 'none' ? 'block' : 'none';
+        }
+
+        let selectedRating = 0;
+
+        function setRating(rating) {
+            selectedRating = rating;
+            const stars = document.querySelectorAll('#star-rating .star');
+            stars.forEach((star, index) => {
+                if (index < rating) {
+                    star.classList.add('active');
+                } else {
+                    star.classList.remove('active');
+                }
+            });
+        }
+
+        async function submitRating(productId) {
+            if (selectedRating === 0) {
+                showNotification('Please select a rating', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/products/${productId}/ratings`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        rating: selectedRating,
+                        review: document.getElementById('review-text').value
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification('Review submitted successfully!', 'success');
+                    document.getElementById('rating-form').style.display = 'none';
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+                } else {
+                    showNotification(data.message || 'Failed to submit review', 'error');
+                }
+            } catch (error) {
+                console.error('Failed to submit rating:', error);
+                showNotification('An error occurred', 'error');
+            }
+        }
+    </script>
+</body>
+
+</html>

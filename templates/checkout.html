@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - AgroMarket</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .checkout-container {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .checkout-form-section {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e2e8f0;
+            margin-bottom: 20px;
+        }
+
+        .checkout-summary-section {
+            background: white;
+            border-radius: var(--radius-xl);
+            padding: 30px;
+            box-shadow: var(--shadow-sm);
+            height: fit-content;
+            position: sticky;
+            top: 100px;
+            border: 1px solid rgba(229, 231, 235, 0.5);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .form-input-group {
+            position: relative;
+        }
+
+        .form-input-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            pointer-events: none;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 14px 14px 14px 45px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s;
+            background: #f8fafc;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+            background: white;
+        }
+
+        .location-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--primary);
+            border: none;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 8px;
+            float: right;
+        }
+
+        .location-btn:hover {
+            background: rgba(16, 185, 129, 0.2);
+            transform: translateY(-1px);
+        }
+
+        .location-btn i {
+            font-size: 0.9rem;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .summary-item:last-child {
+            border-bottom: none;
+        }
+
+        .summary-item-details {
+            flex: 1;
+        }
+
+        .summary-item-name {
+            font-weight: 600;
+            color: var(--text-main);
+            font-size: 0.9rem;
+        }
+
+        .summary-item-meta {
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+
+        .summary-item-price {
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .place-order-btn {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 16px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1.05rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-top: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.3), 0 2px 4px -1px rgba(16, 185, 129, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .place-order-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+
+        .place-order-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.4), 0 4px 6px -2px rgba(16, 185, 129, 0.2);
+        }
+
+        .place-order-btn:hover::before {
+            left: 100%;
+        }
+
+        .place-order-btn:active {
+            transform: translateY(0);
+        }
+
+        .place-order-btn:disabled {
+            background: #cbd5e1;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        @media (max-width: 900px) {
+            .checkout-container {
+                grid-template-columns: 1fr;
+            }
+
+            .checkout-summary-section {
+                position: static;
+                order: -1;
+                /* Show summary first on mobile? Or maybe keep it bottom. Let's keep default (bottom) */
+                order: 1;
+            }
+
+
+        }
+
+        .bb-form-header {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .bb-section-label {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            color: #888;
+            font-weight: 600;
+            margin-bottom: 15px;
+            letter-spacing: 0.5px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .form-col-full {
+            grid-column: span 2;
+        }
+
+        .bb-input-group {
+            position: relative;
+            margin-bottom: 0;
+        }
+
+        .bb-label {
+            display: block;
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 4px;
+            font-weight: 500;
+        }
+
+        .bb-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ccc;
+            /* Simple gray border like BigBasket */
+            border-radius: 4px;
+            font-size: 0.95rem;
+            color: #333;
+            transition: border 0.2s;
+            background: #fff;
+        }
+
+        .bb-input:focus {
+            outline: none;
+            border-color: #84c225;
+            /* BigBasket Green */
+            box-shadow: 0 0 0 1px #84c225;
+        }
+
+        .bb-input[readonly] {
+            background-color: #f9f9f9;
+            color: #777;
+            cursor: not-allowed;
+        }
+
+        .bb-location-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #f0fdf4;
+            color: #84c225;
+            /* Green text */
+            border: 1px solid #84c225;
+            /* Green border */
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .bb-location-pill:hover {
+            background: #dcfce7;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(132, 194, 37, 0.2);
+        }
+
+        .custom-back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background-color: transparent;
+            color: #84c225;
+            border: 1px solid #84c225;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .custom-back-btn:hover {
+            background-color: #f0fdf4;
+            transform: translateX(-3px);
+        }
+
+        .bb-chips-container {
+            display: flex;
+            gap: 10px;
+        }
+
+        .bb-chip-input {
+            display: none;
+        }
+
+        .bb-chip-label {
+            padding: 6px 16px;
+            border: 1px solid #ddd;
+            border-radius: 16px;
+            font-size: 0.85rem;
+            color: #555;
+            cursor: pointer;
+            background: #fff;
+            transition: all 0.2s;
+        }
+
+        .bb-chip-input:checked+.bb-chip-label {
+            background: #84c225;
+            color: white;
+            border-color: #84c225;
+            font-weight: 600;
+        }
+
+        @media (max-width: 600px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .form-col-full {
+                grid-column: span 1;
+            }
+        }
+
+        .bb-payment-option {
+            border: 1px solid #e2e8f0;
+            padding: 15px 20px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+            background: white;
+            transition: all 0.2s;
+        }
+
+        .bb-payment-option:hover:not(.disabled) {
+            border-color: #84c225;
+            background-color: #fcfefe;
+        }
+
+        .bb-payment-option.selected {
+            border-color: #84c225;
+            background-color: #ecfdf5;
+            box-shadow: 0 0 0 1px #84c225;
+        }
+
+        .bb-payment-option.disabled {
+            background-color: #f8fafc;
+            opacity: 0.7;
+            cursor: not-allowed;
+            border-color: #f1f5f9;
+        }
+
+        .bb-radio {
+            accent-color: #84c225;
+            width: 18px;
+            height: 18px;
+        }
+
+        .bb-payment-icon {
+            width: 24px;
+            text-align: center;
+            color: #64748b;
+            font-size: 1.1rem;
+        }
+
+        .bb-payment-label {
+            font-weight: 600;
+            color: #333;
+            font-size: 0.95rem;
+        }
+
+        .bb-payment-subtext {
+            font-size: 0.75rem;
+            color: #888;
+            margin-top: 2px;
+        }
+
+        .bb-payment-tag {
+            font-size: 0.7rem;
+            color: #94a3b8;
+            background: #e2e8f0;
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-left: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar-left">
+            <div class="brand">
+                <i class="fa-solid fa-leaf brand-icon"></i>
+                <span class="brand-text">AgroMarket</span>
+            </div>
+
+            <ul class="nav-menu">
+                <li class="nav-item" onclick="window.location.href='/'">
+                    <i class="fa-solid fa-house"></i>
+                    <span>Overview</span>
+                </li>
+                <li class="nav-item" onclick="window.location.href='/'">
+                    <i class="fa-solid fa-store"></i>
+                    <span>Marketplace</span>
+                </li>
+                <li class="nav-item active" onclick="window.location.href='/cart'">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                    <span>Cart</span>
+                </li>
+                <li class="nav-item" onclick="window.location.href='/'">
+                    <i class="fa-solid fa-truck-fast"></i>
+                    <span>Orders</span>
+                </li>
+                <li class="nav-item" onclick="window.location.href='/'">
+                    <i class="fa-solid fa-wallet"></i>
+                    <span>Wallet</span>
+                </li>
+            </ul>
+
+            <div class="user-profile-mini">
+                <div class="user-avatar">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+                <div class="user-info">
+                    <div class="user-name">User</div>
+                    <div class="user-role">Member</div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div style="padding-top: 20px;">
+                <div class="section-header"
+                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+                    <h1 class="section-title" style="margin: 0;" data-i18n="checkout_title">Checkout</h1>
+                    <a href="/cart" class="custom-back-btn"><i class="fa-solid fa-arrow-left"></i> <span
+                            data-i18n="back_to_cart">Back to Cart</span></a>
+                </div>
+
+                <div class="checkout-container">
+                    <!-- Shipping Form -->
+                    <div class="checkout-form-section">
+                        <h3 class="bb-form-header" data-i18n="shipping_info">Shipping Information</h3>
+                        <form id="checkout-form" onsubmit="placeOrder(event)">
+
+                            <!-- Personal Details -->
+                            <div class="mb-30">
+                                <h4 class="bb-section-label" data-i18n="personal_details">Personal Details</h4>
+                                <div class="form-row">
+                                    <div class="bb-input-group">
+                                        <label class="bb-label" data-i18n="full_name">Full Name</label>
+                                        <input type="text" class="bb-input" value="Test User">
+                                    </div>
+                                    <div class="bb-input-group">
+                                        <label class="bb-label" for="phone" data-i18n="label_phone">Contact
+                                            Number</label>
+                                        <input type="tel" id="phone" class="bb-input" required
+                                            placeholder="Enter number" data-i18n-placeholder="enter_phone">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Address Details -->
+                            <div class="mb-30">
+                                <div
+                                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                                    <h4 class="bb-section-label" style="margin-bottom: 0;" data-i18n="address_details">
+                                        Address Details</h4>
+                                    <button type="button" class="bb-location-pill" onclick="useCurrentLocation()"
+                                        id="location-btn">
+                                        <i class="fa-solid fa-location-crosshairs"></i> <span
+                                            data-i18n="use_current_location">Use Current Location</span>
+                                    </button>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="bb-input-group form-col-full">
+                                        <label class="bb-label" for="house_no" data-i18n="enter_house_no">House No /
+                                            Flat / Building</label>
+                                        <input type="text" id="house_no" class="bb-input" required
+                                            placeholder="Enter House No." data-i18n-placeholder="enter_house_no">
+                                    </div>
+                                    <div class="bb-input-group form-col-full">
+                                        <label class="bb-label" for="area" data-i18n="enter_area">Apartment / Road /
+                                            Area</label>
+                                        <input type="text" id="area" class="bb-input" required
+                                            placeholder="Enter Area details" data-i18n-placeholder="enter_area">
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="bb-input-group">
+                                        <label class="bb-label" for="pincode" data-i18n="enter_pincode">Pincode</label>
+                                        <input type="text" id="pincode" class="bb-input" required
+                                            placeholder="Enter Pincode" data-i18n-placeholder="enter_pincode">
+                                    </div>
+                                    <div class="bb-input-group">
+                                        <label class="bb-label" for="city" data-i18n="enter_city">City</label>
+                                        <input type="text" id="city" class="bb-input" required placeholder="Enter City"
+                                            data-i18n-placeholder="enter_city">
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="bb-input-group">
+                                        <label class="bb-label" for="state" data-i18n="enter_state">State</label>
+                                        <input type="text" id="state" class="bb-input" required
+                                            placeholder="Enter State" data-i18n-placeholder="enter_state">
+                                    </div>
+                                    <div class="bb-input-group">
+                                        <label class="bb-label" for="landmark" data-i18n="enter_landmark">Landmark
+                                            (Optional)</label>
+                                        <input type="text" id="landmark" class="bb-input" placeholder="Enter Landmark"
+                                            data-i18n-placeholder="enter_landmark">
+                                    </div>
+                                </div>
+
+                                <div class="bb-input-group">
+                                    <label class="bb-label" data-i18n="save_address_as">Save Address As</label>
+                                    <div class="bb-chips-container">
+                                        <label>
+                                            <input type="radio" name="address_type" value="Home" class="bb-chip-input"
+                                                checked>
+                                            <span class="bb-chip-label">Home</span>
+                                        </label>
+                                        <label>
+                                            <input type="radio" name="address_type" value="Work" class="bb-chip-input">
+                                            <span class="bb-chip-label">Work</span>
+                                        </label>
+                                        <label>
+                                            <input type="radio" name="address_type" value="Other" class="bb-chip-input">
+                                            <span class="bb-chip-label">Other</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <!-- Hidden textarea to store combined address for backend compatibility if needed, 
+                                 but better to construct it on submit -->
+
+                            <div class="mt-40">
+                                <h3 class="bb-form-header" data-i18n="payment_options">Payment Options</h3>
+
+                                <div class="bb-payment-sections">
+                                    <!-- UPI -->
+                                    <label class="bb-payment-option">
+                                        <input type="radio" name="payment_method" value="upi" class="bb-radio">
+                                        <i class="fa-brands fa-google-pay bb-payment-icon"></i>
+                                        <div>
+                                            <div class="bb-payment-label">UPI</div>
+                                            <div class="bb-payment-subtext">Google Pay, PhonePe, Paytm</div>
+                                        </div>
+                                    </label>
+
+                                    <!-- Cards -->
+                                    <label class="bb-payment-option">
+                                        <input type="radio" name="payment_method" value="card" class="bb-radio">
+                                        <i class="fa-regular fa-credit-card bb-payment-icon"></i>
+                                        <div>
+                                            <div class="bb-payment-label">Credit / Debit Cards</div>
+                                            <div class="bb-payment-subtext">Visa, Mastercard, Rupay</div>
+                                        </div>
+                                    </label>
+
+                                    <!-- Netbanking -->
+                                    <label class="bb-payment-option">
+                                        <input type="radio" name="payment_method" value="netbanking" class="bb-radio">
+                                        <i class="fa-solid fa-building-columns bb-payment-icon"></i>
+                                        <div class="bb-payment-label">Net Banking</div>
+                                    </label>
+
+                                    <!-- Wallets -->
+                                    <label class="bb-payment-option">
+                                        <input type="radio" name="payment_method" value="wallet" class="bb-radio">
+                                        <i class="fa-solid fa-wallet bb-payment-icon"></i>
+                                        <div class="bb-payment-label">Wallets</div>
+                                    </label>
+
+                                    <!-- COD -->
+                                    <label class="bb-payment-option selected">
+                                        <input type="radio" name="payment_method" value="cod" checked class="bb-radio">
+                                        <i class="fa-solid fa-money-bill-wave bb-payment-icon"
+                                            style="color: #84c225;"></i>
+                                        <div>
+                                            <div class="bb-payment-label">Cash on Delivery</div>
+                                            <div class="bb-payment-subtext">Pay cash at your doorstep</div>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Order Summary -->
+                    <div class="checkout-summary-section">
+                        <h3 class="mb-20">Order Summary</h3>
+                        <div id="checkout-items">
+                            <!-- Items will be loaded here -->
+                        </div>
+
+                        <div style="margin-top: 20px; padding-top: 20px; border-top: 2px dashed #e2e8f0;">
+                            <div class="summary-row"
+                                style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                                <span class="text-light">Subtotal</span>
+                                <span id="checkout-subtotal" class="fw-600">₹0.00</span>
+                            </div>
+                            <div class="summary-row"
+                                style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                                <span class="text-light">Tax (10%)</span>
+                                <span id="checkout-tax" class="fw-600">₹0.00</span>
+                            </div>
+                            <div class="summary-row"
+                                style="display: flex; justify-content: space-between; font-size: 1.2rem; margin-top: 15px;">
+                                <span class="fw-700">Total</span>
+                                <span id="checkout-total" class="fw-700" style="color: var(--primary);">₹0.00</span>
+                            </div>
+                        </div>
+
+                        <button type="submit" form="checkout-form" class="place-order-btn" id="place-order-btn">
+                            <span data-i18n="place_order">Place Order</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/translations.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            checkSession();
+            loadCheckoutData();
+
+            // Payment selection logic
+            const paymentOptions = document.querySelectorAll('input[name="payment_method"]');
+            paymentOptions.forEach(option => {
+                option.addEventListener('change', function () {
+                    // Remove selected class from all parents
+                    document.querySelectorAll('.bb-payment-option').forEach(el => {
+                        el.classList.remove('selected');
+                    });
+
+                    // Add selected class to the parent label of the checked radio
+                    this.closest('.bb-payment-option').classList.add('selected');
+                });
+            });
+        });
+
+        async function loadCheckoutData() {
+            try {
+                const response = await fetch('/api/cart');
+                const data = await response.json();
+
+                if (data.items.length === 0) {
+                    window.location.href = '/cart'; // Redirect if cart is empty
+                    return;
+                }
+
+                const itemsContainer = document.getElementById('checkout-items');
+                itemsContainer.innerHTML = '';
+
+                data.items.forEach(item => {
+                    itemsContainer.innerHTML += `
+                        <div class="summary-item">
+                            <div class="summary-item-details">
+                                <div class="summary-item-name">${t(item.name)}</div>
+                                <div class="summary-item-meta">Qty: ${item.quantity}</div>
+                            </div>
+                            <div class="summary-item-price">₹${item.subtotal.toFixed(2)}</div>
+                        </div>
+                    `;
+                });
+
+                const subtotal = data.total_amount;
+                const tax = subtotal * 0.1;
+                const total = subtotal + tax;
+
+                document.getElementById('checkout-subtotal').textContent = `₹${subtotal.toFixed(2)}`;
+                document.getElementById('checkout-tax').textContent = `₹${tax.toFixed(2)}`;
+                document.getElementById('checkout-total').textContent = `₹${total.toFixed(2)}`;
+
+            } catch (error) {
+                console.error('Failed to load cart data:', error);
+            }
+        }
+
+        function useCurrentLocation() {
+            const btn = document.getElementById('location-btn');
+            const originalContent = btn.innerHTML;
+
+            if (!navigator.geolocation) {
+                alert('Geolocation is not supported by your browser');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Locating...';
+
+            navigator.geolocation.getCurrentPosition(async (position) => {
+                const { latitude, longitude } = position.coords;
+
+                try {
+                    const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&addressdetails=1`);
+                    const data = await response.json();
+
+                    if (data && data.address) {
+                        const addr = data.address;
+
+                        // Populate fields safely
+                        document.getElementById('pincode').value = addr.postcode || '';
+                        document.getElementById('city').value = addr.city || addr.town || addr.village || addr.county || '';
+                        document.getElementById('state').value = addr.state || '';
+                        document.getElementById('house_no').value = addr.house_number || '';
+                        document.getElementById('area').value = [addr.road, addr.suburb, addr.neighbourhood].filter(Boolean).join(', ');
+
+                        // Try to focus house no as it might be missing from automatic detection mostly
+                        document.getElementById('house_no').focus();
+                    } else {
+                        alert('Could not find detailed address for current location.');
+                    }
+                } catch (error) {
+                    console.error('Error fetching address:', error);
+                    alert('Error fetching address details.');
+                } finally {
+                    btn.disabled = false;
+                    btn.innerHTML = originalContent;
+                }
+            }, (error) => {
+                console.error('Geolocation error:', error);
+                let msg = 'Error getting location.';
+                switch (error.code) {
+                    case error.PERMISSION_DENIED:
+                        msg = "User denied the request for Geolocation.";
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        msg = "Location information is unavailable.";
+                        break;
+                    case error.TIMEOUT:
+                        msg = "The request to get user location timed out.";
+                        break;
+                }
+                alert(msg);
+                btn.disabled = false;
+                btn.innerHTML = originalContent;
+            }, {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 0
+            });
+        }
+
+        async function placeOrder(event) {
+            event.preventDefault();
+
+            const btn = document.getElementById('place-order-btn');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processing...';
+
+            const phone = document.getElementById('phone').value;
+
+            // Construct address string
+            const pincode = document.getElementById('pincode').value;
+            const city = document.getElementById('city').value;
+            const houseNo = document.getElementById('house_no').value;
+            const area = document.getElementById('area').value;
+            const landmark = document.getElementById('landmark').value;
+            const state = document.getElementById('state').value;
+            const addressType = document.querySelector('input[name="address_type"]:checked').value;
+
+            const addressComponents = [
+                houseNo,
+                area,
+                landmark ? `Landmark: ${landmark}` : '',
+                city,
+                state,
+                `Pincode: ${pincode}`,
+                `(${addressType})`
+            ];
+
+            const fullAddress = addressComponents.filter(c => c && c.trim() !== '').join(', ');
+
+            try {
+                const response = await fetch('/api/orders', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        shipping_phone: phone,
+                        shipping_address: fullAddress
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Success! Show message and redirect
+                    showNotification(t('order_success') + ' ID: ' + result.order_id, 'success');
+                    setTimeout(() => window.location.href = '/', 2000);
+
+                } else {
+                    alert('Failed to place order: ' + result.message);
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                }
+            } catch (error) {
+                console.error('Error placing order:', error);
+                alert('An error occurred. Please try again.');
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        }
+    </script>
+</body>
+
+</html>

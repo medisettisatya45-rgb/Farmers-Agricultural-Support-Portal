@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Choose Language - Agriculture App</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Include translations to potentially dynamically translate this screen too if needed -->
+    <script src="{{ url_for('static', filename='js/translations.js') }}"></script>
+    <style>
+        body {
+            background-color: #f1f3f6;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            font-family: 'Roboto', sans-serif;
+            color: #212121;
+        }
+
+        .fk-lang-card {
+            background: #fff;
+            width: 100%;
+            max-width: 400px;
+            border-radius: 4px;
+            box-shadow: 0 4px 16px 0 rgba(0, 0, 0, .1);
+            padding: 30px;
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        .logo-holder {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #10B981;
+            font-size: 28px;
+        }
+
+        .fk-lang-header {
+            font-size: 20px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            text-align: center;
+            color: #212121;
+        }
+
+        .fk-lang-sub {
+            color: #878787;
+            font-size: 14px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .lang-options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .lang-opt {
+            display: flex;
+            align-items: center;
+            border: 1px solid #e0e0e0;
+            padding: 15px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .lang-opt:hover {
+            background-color: #f9f9f9;
+        }
+
+        .lang-opt.selected {
+            border-color: #10B981;
+            background-color: #ecfdf5;
+        }
+
+        .radio-circle {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid #878787;
+            margin-right: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: border-color 0.2s;
+        }
+
+        .lang-opt.selected .radio-circle {
+            border-color: #10B981;
+        }
+
+        .lang-opt.selected .radio-circle::after {
+            content: '';
+            width: 10px;
+            height: 10px;
+            background-color: #10B981;
+            border-radius: 50%;
+            display: block;
+        }
+
+        .lang-text {
+            font-size: 16px;
+            font-weight: 500;
+            color: #212121;
+        }
+
+        .lang-en-text {
+            color: #878787;
+            font-size: 13px;
+            margin-left: auto;
+        }
+
+        .fk-btn-continue {
+            background: #059669;
+            color: #fff;
+            border: none;
+            padding: 15px;
+            width: 100%;
+            font-size: 16px;
+            font-weight: 500;
+            border-radius: 2px;
+            cursor: pointer;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, .2);
+            text-transform: uppercase;
+            margin-top: 35px;
+            opacity: 0.5;
+            pointer-events: none;
+            transition: 0.2s;
+        }
+
+        .fk-btn-continue.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .fk-btn-continue.active:active {
+            background: #047857;
+            box-shadow: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="fk-lang-card">
+        <div class="logo-holder">
+            <i class="fa-solid fa-seedling"></i>
+        </div>
+        <div class="fk-lang-header" id="header-text">Choose Language</div>
+        <div class="fk-lang-sub" id="sub-text">Select your preferred language to continue</div>
+
+        <div class="lang-options" id="lang-container">
+            <div class="lang-opt" data-lang="en" data-title="Choose Language"
+                data-sub="Select your preferred language to continue" data-btn="CONTINUE">
+                <div class="radio-circle"></div>
+                <div class="lang-text">English</div>
+                <div class="lang-en-text">English</div>
+            </div>
+
+            <div class="lang-opt" data-lang="hi" data-title="भाषा चुनें"
+                data-sub="जारी रखने के लिए अपनी पसंदीदा भाषा चुनें" data-btn="आगे बढ़ें">
+                <div class="radio-circle"></div>
+                <div class="lang-text">हिंदी</div>
+                <div class="lang-en-text">Hindi</div>
+            </div>
+
+            <div class="lang-opt" data-lang="te" data-title="భాషను ఎంచుకోండి"
+                data-sub="కొనసాగించడానికి మీకు ఇష్టమైన భాషను ఎంచుకోండి" data-btn="కొనసాగించు">
+                <div class="radio-circle"></div>
+                <div class="lang-text">తెలుగు</div>
+                <div class="lang-en-text">Telugu</div>
+            </div>
+        </div>
+
+        <button class="fk-btn-continue" id="continue-btn">CONTINUE</button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const opts = document.querySelectorAll('.lang-opt');
+            const contBtn = document.getElementById('continue-btn');
+            const headerText = document.getElementById('header-text');
+            const subText = document.getElementById('sub-text');
+            let selectedLang = null;
+
+            opts.forEach(opt => {
+                opt.addEventListener('click', () => {
+                    // Remove selected classes
+                    opts.forEach(o => o.classList.remove('selected'));
+                    // Add selected
+                    opt.classList.add('selected');
+                    selectedLang = opt.getAttribute('data-lang');
+                    // Enable button
+                    contBtn.classList.add('active');
+
+                    // Live preview of text translation for the card
+                    headerText.textContent = opt.getAttribute('data-title');
+                    subText.textContent = opt.getAttribute('data-sub');
+                    contBtn.textContent = opt.getAttribute('data-btn');
+                });
+            });
+
+            contBtn.addEventListener('click', () => {
+                if (selectedLang) {
+                    localStorage.setItem('selectedLanguage', selectedLang);
+                    window.location.href = '/';
+                }
+            });
+
+            // Auto select current language if any, otherwise leave it empty so they must choose
+            const curLang = localStorage.getItem('selectedLanguage');
+            if (curLang) {
+                const curOpt = document.querySelector(`.lang-opt[data-lang="${curLang}"]`);
+                if (curOpt) curOpt.click();
+            }
+        });
+    </script>
+</body>
+
+</html>
